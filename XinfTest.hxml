@@ -1,0 +1,8 @@
+-main XinfTest
+-swf XinfTest.swf
+-swf-version 10
+
+--next
+
+-main XinfTest
+-js XinfTest.js
