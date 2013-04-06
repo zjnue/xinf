@@ -1,5 +1,9 @@
--lib xinfinity-gstreamer
--lib xinf
+-cp ../../libs/opengl/api
+-cp ../../libs/xinfinity-support/api
+-cp ../../libs/openvg/api
+-cp ../../libs/cptr/api
+-cp ../../libs/xinfinity-gstreamer/api
+-cp ../../
 -neko svgviewer.n
 -main Viewer
 -resource test.svg@test.svg

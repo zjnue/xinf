@@ -1,0 +1,44 @@
+# sample 1
+-cmd cd 1-instantiate-shapes
+-cmd haxe compile.hxml
+-cmd cd ..
+
+# sample 2
+-cmd cd 2-groups-and-transforms
+-cmd haxe compile.hxml
+-cmd cd ..
+
+# sample 3
+-cmd cd 3-shapes
+-cmd haxe compile.hxml
+-cmd cd ..
+
+# sample 4
+-cmd cd 4-path
+-cmd haxe compile.hxml
+-cmd cd ..
+
+# sample 5
+-cmd cd 5-events
+-cmd haxe compile.hxml
+-cmd cd ..
+
+# sample 6
+-cmd cd 6-images
+-cmd haxe compile.hxml
+-cmd cd ..
+
+# sample 7
+-cmd cd 7-text
+-cmd haxe compile.hxml
+-cmd cd ..
+
+# sample 8
+-cmd cd flash-svg
+-cmd haxe compile.hxml
+-cmd cd ..
+
+# sample 9
+-cmd cd svgviewer
+-cmd haxe compile.hxml
+-cmd cd ..

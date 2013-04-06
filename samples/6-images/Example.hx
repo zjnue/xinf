@@ -23,7 +23,7 @@ class Example {
 	
 	public static function main() :Void {
 		
-		var href = "http://xinf.org/misc/lena.jpg";
+		var href = "http://upload.wikimedia.org/wikipedia/en/thumb/2/24/Lenna.png/220px-Lenna.png";
 		
 		var image = new Image({
 				x:10, y:10,	href:href,

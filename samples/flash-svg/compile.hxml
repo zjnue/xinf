@@ -1,6 +1,7 @@
 -swf svgviewer.swf
 -swf-version 9
 -swf-header 320:240:25:ffffff
--lib xinf
--lib xinfinity-gstreamer
+-cp ../../
+-cp ../../libs/xinfinity-gstreamer/api
 -main FlashSvgViewer
+-debug

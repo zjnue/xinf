@@ -1,15 +1,19 @@
 -neko test.n
 -main Example
--lib xinf
+-cp ../../libs/opengl/api
+-cp ../../libs/xinfinity-support/api
+-cp ../../libs/openvg/api
+-cp ../../libs/cptr/api
+-cp ../../
 
 --next
 -swf test.swf
 -swf-version 9
 -swf-header 640:480:25:ffffff
 -main Example
--lib xinf
+-cp ../../
 
 --next
 -js test.js
 -main Example
--lib xinf
+-cp ../../

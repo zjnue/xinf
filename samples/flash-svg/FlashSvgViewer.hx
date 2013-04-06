@@ -16,9 +16,9 @@ class FlashSvgViewer {
 		var menu = new flash.ui.ContextMenu();
 		flash.Lib.current.contextMenu = menu;
 		var aboutItem = new flash.ui.ContextMenuItem("About Xinf SVG Viewer "+xinf.Version.version+" (r"+xinf.Version.revision+")..." );
-		aboutItem.addEventListener( flash.events.ContextMenuEvent.MENU_ITEM_SELECT, function(e) {
-				flash.Lib.getURL( new flash.net.URLRequest("http://xinf.org/trac/wiki/SvgViewer") );
-			});
+		//aboutItem.addEventListener( flash.events.ContextMenuEvent.MENU_ITEM_SELECT, function(e) {
+		//		flash.Lib.getURL( new flash.net.URLRequest("http://xinf.org/trac/wiki/SvgViewer") );
+		//	});
 		menu.customItems.push( aboutItem );
 
 		var bgColor = if( args.backgroundColor!=null ) Std.parseInt( args.backgroundColor ) else 0xffffff;
@@ -63,7 +63,7 @@ class FlashSvgViewer {
 		try {
 			if( args==null || args.src==null ) {
 				//throw("No document source given.");
-				args = { src:"http://localhost/~dan/test.svg" };
+				args = { src:"http://upload.wikimedia.org/wikipedia/commons/f/fd/Ghostscript_Tiger.svg" };
 			}
 			
 			Document.load( args.src, function(doc:Svg) {
