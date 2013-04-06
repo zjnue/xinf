@@ -272,7 +272,7 @@ class XMLElement extends Node,
 		}
 	}
 
-	static var AttrReg = ~/[\-\_:]/g;
+	static var AttrReg = ~/[\-_:]/g;
 	inline function normalizeAttributeName( _name:String ) :String {
 		var r = AttrReg.replace(_name,"").toLowerCase();
 //		trace("normalizeAttributeName: "+_name+" --> "+r );

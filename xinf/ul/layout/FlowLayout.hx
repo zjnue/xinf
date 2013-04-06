@@ -8,7 +8,7 @@ import xinf.ul.Component;
 import xinf.ul.Container;
 
 class Orientation {
-	public function new();
+	public function new() {}
 	
 	public function A(d:{x:Float,y:Float}):Float { throw("unimplemented"); return 0.; }
 	public function B(d:{x:Float,y:Float}):Float { throw("unimplemented"); return 0.; }

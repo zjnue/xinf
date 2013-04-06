@@ -88,7 +88,7 @@ class TextFormat {
 	#elseif flash
 	public var format:flash.text.TextFormat;
 	#elseif js
-	public function apply( to:js.HtmlDom ) :Void;
+	public function apply( to:js.HtmlDom ) :Void {}
 	#end
 	
 	// Factory

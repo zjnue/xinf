@@ -128,45 +128,45 @@ class PathParser {
 		var op = 
 			switch( cmd ) {
 				case "M":
-					MoveTo( a[0], a[1] );
+					SVGPathSegment.MoveTo( a[0], a[1] );
 				case "m":
-					MoveToR( a[0], a[1] );
+					SVGPathSegment.MoveToR( a[0], a[1] );
 				case "L":
-					LineTo( a[0], a[1] );
+					SVGPathSegment.LineTo( a[0], a[1] );
 				case "l":
-					LineToR( a[0], a[1] );
+					SVGPathSegment.LineToR( a[0], a[1] );
 				case "H":
-					HorizontalTo( a[0] );
+					SVGPathSegment.HorizontalTo( a[0] );
 				case "h":
-					HorizontalToR( a[0] );
+					SVGPathSegment.HorizontalToR( a[0] );
 				case "V":
-					VerticalTo( a[0] );
+					SVGPathSegment.VerticalTo( a[0] );
 				case "v":
-					VerticalToR( a[0] );
+					SVGPathSegment.VerticalToR( a[0] );
 				case "C":
-					CubicTo( a[0], a[1], a[2], a[3], a[4], a[5] );
+					SVGPathSegment.CubicTo( a[0], a[1], a[2], a[3], a[4], a[5] );
 				case "c":
-					CubicToR( a[0], a[1], a[2], a[3], a[4], a[5] );
+					SVGPathSegment.CubicToR( a[0], a[1], a[2], a[3], a[4], a[5] );
 				case "S":
-					SmoothCubicTo( a[0], a[1], a[2], a[3] );
+					SVGPathSegment.SmoothCubicTo( a[0], a[1], a[2], a[3] );
 				case "s":
-					SmoothCubicToR( a[0], a[1], a[2], a[3] );
+					SVGPathSegment.SmoothCubicToR( a[0], a[1], a[2], a[3] );
 				case "Q":
-					QuadraticTo( a[0], a[1], a[2], a[3] );
+					SVGPathSegment.QuadraticTo( a[0], a[1], a[2], a[3] );
 				case "q":
-					QuadraticToR( a[0], a[1], a[2], a[3] );
+					SVGPathSegment.QuadraticToR( a[0], a[1], a[2], a[3] );
 				case "T":
-					SmoothQuadraticTo( a[0], a[1] );
+					SVGPathSegment.SmoothQuadraticTo( a[0], a[1] );
 				case "t":
-					SmoothQuadraticToR( a[0], a[1] );
+					SVGPathSegment.SmoothQuadraticToR( a[0], a[1] );
 				case "A":
-					ArcTo( a[0], a[1], a[2], a[3]==0., a[4]==0., a[5], a[6] );
+					SVGPathSegment.ArcTo( a[0], a[1], a[2], a[3]==0., a[4]==0., a[5], a[6] );
 				case "a":
-					ArcToR( a[0], a[1], a[2], a[3]==0., a[4]==0., a[5], a[6] );
+					SVGPathSegment.ArcToR( a[0], a[1], a[2], a[3]==0., a[4]==0., a[5], a[6] );
 				case "Z":
-					Close;
+					SVGPathSegment.Close;
 				case "z":
-					Close;
+					SVGPathSegment.Close;
 				default:
 					throw("unimplemented shape command "+cmd);
 			}
