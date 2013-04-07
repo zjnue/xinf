@@ -52,7 +52,13 @@ class ObjectModelRenderer extends PenRenderer {
 	}
 	
 	private var current:Primitive;
-
+	
+	#if !no_canvas
+	override public function resizeGraphicsContainer(w:Float, h:Float) :Void {
+		return null;
+	}
+	#end
+	
 	/**
 		to be overridden by deriving classes, 
 		this function returns a newly

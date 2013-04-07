@@ -230,4 +230,9 @@ interface Renderer {
 		or arbitrary HTML content for JavaScript) within xinferno content.
 	**/
 	function native( o:NativeObject ) :Void;
+	
+	#if !no_canvas
+	function clear( id:Int ) : Void;
+	function resizeGraphicsContainer( w:Float, h:Float ) :Void;
+	#end
 }

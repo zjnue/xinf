@@ -20,7 +20,17 @@ class BasicRenderer implements Renderer {
 	private function unimplemented( ?func:String ) :Void {
 		trace("unimplemented: "+func );
 	}
-
+	
+	#if !no_canvas
+	public function clear( id:Int ) : Void {
+		unimplemented("clear");
+	}
+	
+	public function resizeGraphicsContainer( w:Float, h:Float ) :Void {
+		unimplemented("resizeGraphicsContainer");
+	}
+	#end
+	
 	// erno Instruction protocol
 	
 	public function startNative( o:NativeContainer ) :Void {

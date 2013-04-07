@@ -9,9 +9,63 @@ import xinf.erno.ImageData;
 import xinf.erno.TextFormat;
 
 import js.Dom;
+
+#if !no_canvas
+import xinf.erno.Paint;
+import xinf.erno.Constants;
+import js.Lib;
+import js.DomCanvas;
+import js.CanvasRenderingContext2D;
+#end
+
 typedef Primitive = js.HtmlDom
 
 class JSRenderer extends ObjectModelRenderer {
+
+	#if !no_canvas
+	var last		: { x:Float, y:Float };
+	var first		: { x:Float, y:Float };
+	
+	public static inline function getCanvas( p : Primitive ) : DomCanvas {
+		var canvas : DomCanvas = cast p.getElementsByTagName("canvas")[0];
+		if( canvas == null ) {
+			canvas = cast Lib.document.createElement("canvas");
+			p.appendChild(canvas);
+			
+			// tmp hack - set canvas size on resize 
+			canvas.width = 1600;
+			canvas.height = 1600;
+			
+			var ctx = canvas.getContext("2d");
+			ctx.mouseChildren = false;
+			ctx.mouseEnabled = false;
+		}
+		return canvas;
+	}
+	
+	public static inline function getCtx( p : Primitive ) : CanvasRenderingContext2D {
+		return getCanvas(p).getContext("2d");
+	}
+
+	override public function resizeGraphicsContainer( w:Float, h:Float ) :Void {
+		var canvas : DomCanvas = cast current.getElementsByTagName("canvas")[0];
+		var newCanvas : DomCanvas = cast Lib.document.createElement("canvas");
+		newCanvas.width = Math.round(w);
+		newCanvas.height = Math.round(h);
+		if( canvas == null ) {
+			current.appendChild(canvas);
+		} else {
+			current.insertBefore(newCanvas, canvas);
+			current.removeChild(canvas);
+		}
+	}
+
+	override function clear( id:Int ) : Void {
+		var p = lookup(id);
+		var canvas = getCanvas(p);
+		canvas.width = canvas.width;
+	}
+	#end
 	
 	override public function createPrimitive(id:Int) :Primitive {
 		// create new object
@@ -23,6 +77,13 @@ class JSRenderer extends ObjectModelRenderer {
 	
 	override public function clearPrimitive( p:Primitive ) {
 		p.innerHTML="";
+		
+		#if !no_canvas
+		// FIXME
+		var canvas = getCanvas(p);
+		canvas.width = canvas.width; // curious, but this is documented as way to refresh canvas..
+		p.appendChild(canvas);
+		#end
 	}
 	
 	override public function attachPrimitive( parent:Primitive, child:Primitive ) :Void {
@@ -50,6 +111,15 @@ class JSRenderer extends ObjectModelRenderer {
 	}
 	
 	override public function rect( x:Float, y:Float, w:Float, h:Float ) {
+		#if !no_canvas
+		var ctx = getCtx(current);
+		applyStroke(ctx,pen.stroke,pen.width,pen.caps,pen.join,pen.miterLimit);
+		applyFill(ctx,pen.fill);
+		ctx.rect(x,y,w,h);
+		if( pen.stroke != null )
+			ctx.stroke();
+		ctx.fill();
+		#else
 		var r = js.Lib.document.createElement("div");
 		r.style.position="absolute";
 		r.style.left = ""+Math.round(x)+"px";
@@ -78,6 +148,7 @@ class JSRenderer extends ObjectModelRenderer {
 		r.style.width = ""+Math.round(w)+"px";
 		r.style.height = ""+Math.round(h)+"px";
 		current.appendChild( r );
+		#end
 	}
 
 	override public function roundedRect( x:Float, y:Float, w:Float, h:Float, rx:Float, ry:Float ) {
@@ -85,7 +156,34 @@ class JSRenderer extends ObjectModelRenderer {
 	}
 	
 	override public function ellipse( x:Float, y:Float, rx:Float, ry:Float ) {
+		#if !no_canvas
+		var ctx = getCtx(current);
+		applyStroke(ctx,pen.stroke,pen.width,pen.caps,pen.join,pen.miterLimit);
+		applyFill(ctx,pen.fill);
+		
+		x = x-rx;
+		y = y-ry;
+		var w = rx*2;
+		var h = ry*2;
+		
+		var k = 0.5522848;
+		var ox = (w / 2) * k;
+		var oy = (h / 2) * k;
+		var xe = x + w;
+		var ye = y + h;
+		var xm = x + w / 2;
+		var ym = y + h / 2;
+			
+		ctx.moveTo( x, ym );
+		ctx.bezierCurveTo( x, ym-oy, xm-ox, y, xm, y );
+		ctx.bezierCurveTo( xm+ox, y, xe, ym-oy, xe, ym );
+		ctx.bezierCurveTo( xe, ym+oy, xm+ox, ye, xm, ye );
+		ctx.bezierCurveTo( xm-ox, ye, x, ym+oy, x, ym );
+		
+		ctx.fill();
+		#else
 		rect( x-rx, y-ry, rx*2, ry*2 );
+		#end
 	}
 
 	override public function text( x:Float, y:Float, text:String, format:TextFormat ) {
@@ -151,8 +249,155 @@ class JSRenderer extends ObjectModelRenderer {
 	override public function native( o:NativeObject ) {
 		current.appendChild(o);
 	}
-
+	
+	#if !no_canvas
+	public static function applyFill( ctx:CanvasRenderingContext2D, fill:Paint ) {
+		switch( fill ) {
+			case None:
+				// do nothing
+				ctx.fillStyle = colorToRGBAString(0,0,0,0);
+		
+			case SolidColor(r,g,b,a):
+				if( a>0 ) {
+					ctx.fillStyle = colorToRGBAString(r,g,b,a);
+				} else
+					ctx.fillStyle = colorToRGBAString(0,0,0,0);
+			/*	
+			case PLinearGradient( stops, x1, y1, x2, y2, transform, spread ):
+				var gr = flashGradient( stops, spread );
+				var matrix = flashLinearGradient( x1,y1,x2,y2 );
+				if( transform != null ) {
+					var m = transform.getMatrix();
+					matrix.concat( new flash.geom.Matrix( m.a,m.b,m.c,m.d,m.tx,m.ty ) );
+				}
+				gfx.beginGradientFill( GradientType.LINEAR, gr.colors, gr.alphas, gr.ratios, matrix, gr.spread, InterpolationMethod.RGB );
+				
+			case PRadialGradient( stops, cx, cy, r, fx, fy, transform, spread ):
+				var gr = flashGradient( stops, spread );
+				var matrix = flashRadialGradient( cx,cy,r,fx,fy );
+				if( transform != null ) {
+					var m = transform.getMatrix();
+					matrix.concat( new flash.geom.Matrix( m.a,m.b,m.c,m.d,m.tx,m.ty ) );
+				}
+				var f = { x:fx-cx, y:fy-cy };
+				var focalRatio = Math.sqrt( (f.x*f.x)+(f.y*f.y) )/r;
+				gfx.beginGradientFill( GradientType.RADIAL, gr.colors, gr.alphas, gr.ratios, matrix, gr.spread, InterpolationMethod.RGB, focalRatio );
+				*/
+			default:
+				throw("fill "+fill+" not implemented");
+		}
+	}
+	
+	public static function applyStroke( ctx:CanvasRenderingContext2D, stroke:Paint, width:Float, ?_caps:Int=0, ?_join:Int=0, ?miterLimit:Float=1 ) {
+		if( stroke == null )
+			return;
+		
+		// TODO: define CapsStyle class
+		ctx.lineCap = switch( _caps ) {
+			case Constants.CAPS_BUTT: "butt";
+			case Constants.CAPS_ROUND: "round";
+			case Constants.CAPS_SQUARE: "square";
+			default: "butt";
+		}
+		
+		// TODO: define JointStyle class
+		ctx.lineJoin = switch( _join ) {
+			case Constants.JOIN_MITER: "miter";
+			case Constants.JOIN_ROUND: "round";
+			case Constants.JOIN_BEVEL: "bevel";
+			default: "miter";
+		}
+		
+		ctx.miterLimit = miterLimit;
+		ctx.lineWidth = width;
+		
+		switch( stroke ) {
+			
+			case None:
+				trace("None");
+			case SolidColor(r,g,b,a):
+				ctx.strokeStyle = colorToRGBAString(r,g,b,a);
+				/*
+			case PLinearGradient( stops, x1, y1, x2, y2, transform, spread ):
+				var gr = flashGradient( stops, spread );
+				var matrix = flashLinearGradient( x1,y1,x2,y2 );
+				if( transform != null ) {
+					var m = transform.getMatrix();
+					matrix.concat( new flash.geom.Matrix( m.a,m.b,m.c,m.d,m.tx,m.ty ) );
+				}
+				gfx.lineStyle( width, 0, 1., false, LineScaleMode.NORMAL, caps, join, miterLimit );
+				gfx.lineGradientStyle( GradientType.LINEAR, gr.colors, gr.alphas, gr.ratios, matrix, gr.spread, InterpolationMethod.RGB );
+			case PRadialGradient( stops, cx, cy, r, fx, fy, transform, spread ):
+				var gr = flashGradient( stops, spread );
+				var matrix = flashRadialGradient( cx,cy,r,fx,fy );
+				if( transform != null ) {
+					var m = transform.getMatrix();
+					matrix.concat( new flash.geom.Matrix( m.a,m.b,m.c,m.d,m.tx,m.ty ) );
+				}
+				var f = { x:fx-cx, y:fy-cy };
+				var focalRatio = Math.sqrt( (f.x*f.x)+(f.y*f.y) )/r;
+				gfx.lineGradientStyle( GradientType.RADIAL, gr.colors, gr.alphas, gr.ratios, matrix, gr.spread, InterpolationMethod.RGB, focalRatio );
+				*/
+			default:
+				throw("stroke "+stroke+" not implemented");
+		}
+	}
+	
+	override public function startShape() {
+		clearPrimitive(current);
+		var ctx = getCtx(current);
+		applyFill(ctx,pen.fill);
+	}
+	
+	override public function endShape() {
+		var ctx = getCtx(current);
+		ctx.fill();
+	}
+	
+	override public function startPath( x:Float, y:Float) {
+		var ctx = getCtx(current);
+		applyStroke(ctx,pen.stroke,pen.width,pen.caps,pen.join,pen.miterLimit);
+		ctx.moveTo(x, y);
+		last = { x:x, y:y };
+		first = { x:x, y:y };
+	}
+	
+	override public function endPath() {
+		var ctx = getCtx(current);
+		ctx.stroke();
+		ctx.strokeStyle = colorToRGBString(0,0,0);
+	}
+	
+	override public function close() {
+		// FIXME
+	}
+	
+	override public function lineTo( x:Float, y:Float ) {
+		var ctx = getCtx(current);
+		ctx.lineTo(x,y);
+		last = { x:x, y:y };
+	}
+	
+	override public function quadraticTo( x1:Float, y1:Float, x:Float, y:Float ) {
+		var ctx = getCtx(current);
+		ctx.quadraticCurveTo( x1,y1,x,y );
+		last = { x:x, y:y };
+	}
+	
+	override public function cubicTo( x1:Float, y1:Float, x2:Float, y2:Float, x:Float, y:Float ) {
+		var ctx = getCtx(current);
+		ctx.bezierCurveTo( x1,y1,x2,y2,x,y );
+		last = { x:x, y:y };
+	}
+	#end
+	
 	public static function colorToRGBString( r:Float, g:Float, b:Float ) :String {
 		return "rgb("+Math.round(r*0xff)+","+Math.round(g*0xff)+","+Math.round(b*0xff)+")";	
 	}
+	
+	#if !no_canvas
+	public static function colorToRGBAString( r:Float, g:Float, b:Float, a:Float ) :String {
+		return "rgba("+Math.round(r*0xff)+","+Math.round(g*0xff)+","+Math.round(b*0xff)+","+a+")";
+	}
+	#end
 }

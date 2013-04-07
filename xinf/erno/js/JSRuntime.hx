@@ -22,6 +22,16 @@ class JSRuntime extends SimpleRuntime {
 	override public function getDefaultRoot() :NativeContainer {
 		if( defaultRoot==null ) {
 			defaultRoot = js.Lib.document.createElement("div");
+			
+			#if !no_canvas
+			defaultRoot.style.overflow = "hidden";
+			defaultRoot.style.position = "absolute";
+			defaultRoot.style.left = "0px";
+			defaultRoot.style.top = "0px";
+			defaultRoot.style.width = "900px";
+			defaultRoot.style.height = "900px";
+			#end
+			
 			js.Lib.document.body.appendChild(defaultRoot);
 		}
 		return defaultRoot;
