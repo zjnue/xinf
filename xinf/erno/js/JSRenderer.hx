@@ -152,7 +152,27 @@ class JSRenderer extends ObjectModelRenderer {
 	}
 
 	override public function roundedRect( x:Float, y:Float, w:Float, h:Float, rx:Float, ry:Float ) {
+		#if !no_canvas
+		var ctx = getCtx(current);
+		applyStroke(ctx,pen.stroke,pen.width,pen.caps,pen.join,pen.miterLimit);
+		applyFill(ctx,pen.fill);
+		
+		ctx.moveTo(x + rx, y);
+		ctx.lineTo(x + w - rx, y);
+		ctx.quadraticCurveTo(x + w, y, x + w, y + ry);
+		ctx.lineTo(x + w, y + h - ry);
+		ctx.quadraticCurveTo(x + w, y + h, x + w - rx, y + h);
+		ctx.lineTo(x + rx, y + h);
+		ctx.quadraticCurveTo(x, y + h, x, y + h - ry);
+		ctx.lineTo(x, y + ry);
+		ctx.quadraticCurveTo(x, y, x + rx, y);
+		
+		if( pen.stroke != null )
+			ctx.stroke();
+		ctx.fill();
+		#else
 		rect( x, y, w, h );
+		#end
 	}
 	
 	override public function ellipse( x:Float, y:Float, rx:Float, ry:Float ) {
