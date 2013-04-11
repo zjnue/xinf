@@ -274,8 +274,14 @@ class TextArea extends xinf.ony.TextArea {
 			r.style.cursor="default";
 		}
 		
+		#if !no_canvas
+		r.style.left = ""+Math.round(x-xinf.erno.js.JSRenderer.CANVAS_OFFSET_X);
+		r.style.top = ""+Math.round(y-xinf.erno.js.JSRenderer.CANVAS_OFFSET_Y);
+		#else
 		r.style.left = ""+Math.round(x);
 		r.style.top = ""+Math.round(y);
+		#end
+		
 		r.style.width = ""+Math.round(width);
 		r.style.height = ""+Math.round(height);
 		

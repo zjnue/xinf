@@ -20,6 +20,7 @@ class Example {
 		   and attach it to Root. */
 		   
 		var group = new Group();
+		group.appendChild( new Rectangle({ x:-25, y:-25, width:150, height:150, rx:40., ry:30., fill:"red" }) );
 		group.appendChild( new Rectangle({ width:100, height:100, fill:"blue" }) );
 		group.appendChild( new Rectangle({ x:25, y:25, width:50, height:50, fill:"yellow" }) );
 		Root.appendChild( group );

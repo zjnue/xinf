@@ -21,10 +21,14 @@ import js.CanvasRenderingContext2D;
 typedef Primitive = js.HtmlDom
 
 class JSRenderer extends ObjectModelRenderer {
-
 	#if !no_canvas
 	var last		: { x:Float, y:Float };
 	var first		: { x:Float, y:Float };
+	
+	public static inline var CANVAS_WIDTH:Int = 1600;
+	public static inline var CANVAS_HEIGHT:Int = 1600;
+	public static inline var CANVAS_OFFSET_X:Int = - Std.int(CANVAS_WIDTH / 4);
+	public static inline var CANVAS_OFFSET_Y:Int = - Std.int(CANVAS_HEIGHT / 4);
 	
 	public static inline function getCanvas( p : Primitive ) : DomCanvas {
 		var canvas : DomCanvas = cast p.getElementsByTagName("canvas")[0];
@@ -32,9 +36,9 @@ class JSRenderer extends ObjectModelRenderer {
 			canvas = cast Lib.document.createElement("canvas");
 			p.appendChild(canvas);
 			
-			// tmp hack - set canvas size on resize 
-			canvas.width = 1600;
-			canvas.height = 1600;
+			// tmp hack
+			canvas.width = CANVAS_WIDTH;
+			canvas.height = CANVAS_HEIGHT;
 			
 			var ctx = canvas.getContext("2d");
 			ctx.mouseChildren = false;
@@ -106,12 +110,21 @@ class JSRenderer extends ObjectModelRenderer {
 
 	override public function clipRect( w:Float, h:Float ) {
 		current.style.overflow = "hidden";
+		#if !no_canvas
+		// FIXME - offset overflow hack messes up lower bounds clipping...
+		current.style.width = ""+Math.max(0,Math.round(w-CANVAS_OFFSET_X))+"px";
+		current.style.height = ""+Math.max(0,Math.round(h-CANVAS_OFFSET_Y))+"px";
+		#else
 		current.style.width = ""+Math.max(0,Math.round(w))+"px";
 		current.style.height = ""+Math.max(0,Math.round(h))+"px";
+		#end
 	}
 	
 	override public function rect( x:Float, y:Float, w:Float, h:Float ) {
 		#if !no_canvas
+		x -= CANVAS_OFFSET_X;
+		y -= CANVAS_OFFSET_Y;
+		
 		var ctx = getCtx(current);
 		applyStroke(ctx,pen.stroke,pen.width,pen.caps,pen.join,pen.miterLimit);
 		applyFill(ctx,pen.fill);
@@ -153,6 +166,9 @@ class JSRenderer extends ObjectModelRenderer {
 
 	override public function roundedRect( x:Float, y:Float, w:Float, h:Float, rx:Float, ry:Float ) {
 		#if !no_canvas
+		x -= CANVAS_OFFSET_X;
+		y -= CANVAS_OFFSET_Y;
+		
 		var ctx = getCtx(current);
 		applyStroke(ctx,pen.stroke,pen.width,pen.caps,pen.join,pen.miterLimit);
 		applyFill(ctx,pen.fill);
@@ -177,6 +193,9 @@ class JSRenderer extends ObjectModelRenderer {
 	
 	override public function ellipse( x:Float, y:Float, rx:Float, ry:Float ) {
 		#if !no_canvas
+		x -= CANVAS_OFFSET_X;
+		y -= CANVAS_OFFSET_Y;
+		
 		var ctx = getCtx(current);
 		applyStroke(ctx,pen.stroke,pen.width,pen.caps,pen.join,pen.miterLimit);
 		applyFill(ctx,pen.fill);
@@ -207,6 +226,11 @@ class JSRenderer extends ObjectModelRenderer {
 	}
 
 	override public function text( x:Float, y:Float, text:String, format:TextFormat ) {
+		#if !no_canvas
+		x -= CANVAS_OFFSET_X;
+		y -= CANVAS_OFFSET_Y;
+		#end
+		
 		var r = js.Lib.document.createElement("div");
 		r.style.position="absolute";
 		r.style.whiteSpace="nowrap";
@@ -237,6 +261,11 @@ class JSRenderer extends ObjectModelRenderer {
 	override public function image( img:ImageData, inRegion:{ x:Float, y:Float, w:Float, h:Float }, outRegion:{ x:Float, y:Float, w:Float, h:Float } ) {
 		var wf = outRegion.w/inRegion.w;
 		var hf = outRegion.h/inRegion.h;
+		
+		#if !no_canvas
+		outRegion.x -= CANVAS_OFFSET_X;
+		outRegion.y -= CANVAS_OFFSET_Y;
+		#end
 
 		var r:Image = cast(js.Lib.document.createElement("img"));
 		r.src = img.url;
@@ -375,6 +404,10 @@ class JSRenderer extends ObjectModelRenderer {
 	}
 	
 	override public function startPath( x:Float, y:Float) {
+		#if !no_canvas
+		x -= CANVAS_OFFSET_X;
+		y -= CANVAS_OFFSET_Y;
+		#end
 		var ctx = getCtx(current);
 		applyStroke(ctx,pen.stroke,pen.width,pen.caps,pen.join,pen.miterLimit);
 		ctx.moveTo(x, y);
@@ -393,18 +426,30 @@ class JSRenderer extends ObjectModelRenderer {
 	}
 	
 	override public function lineTo( x:Float, y:Float ) {
+		#if !no_canvas
+		x -= CANVAS_OFFSET_X;
+		y -= CANVAS_OFFSET_Y;
+		#end
 		var ctx = getCtx(current);
 		ctx.lineTo(x,y);
 		last = { x:x, y:y };
 	}
 	
 	override public function quadraticTo( x1:Float, y1:Float, x:Float, y:Float ) {
+		#if !no_canvas
+		x -= CANVAS_OFFSET_X; x1 -= CANVAS_OFFSET_X;
+		y -= CANVAS_OFFSET_Y; y1 -= CANVAS_OFFSET_Y;
+		#end
 		var ctx = getCtx(current);
 		ctx.quadraticCurveTo( x1,y1,x,y );
 		last = { x:x, y:y };
 	}
 	
 	override public function cubicTo( x1:Float, y1:Float, x2:Float, y2:Float, x:Float, y:Float ) {
+		#if !no_canvas
+		x -= CANVAS_OFFSET_X; x1 -= CANVAS_OFFSET_X; x2 -= CANVAS_OFFSET_X;
+		y -= CANVAS_OFFSET_Y; y1 -= CANVAS_OFFSET_Y; y2 -= CANVAS_OFFSET_Y;
+		#end
 		var ctx = getCtx(current);
 		ctx.bezierCurveTo( x1,y1,x2,y2,x,y );
 		last = { x:x, y:y };

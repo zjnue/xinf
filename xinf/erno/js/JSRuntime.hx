@@ -26,10 +26,10 @@ class JSRuntime extends SimpleRuntime {
 			#if !no_canvas
 			defaultRoot.style.overflow = "hidden";
 			defaultRoot.style.position = "absolute";
-			defaultRoot.style.left = "0px";
-			defaultRoot.style.top = "0px";
-			defaultRoot.style.width = "900px";
-			defaultRoot.style.height = "900px";
+			defaultRoot.style.left = ""+xinf.erno.js.JSRenderer.CANVAS_OFFSET_X+"px";
+			defaultRoot.style.top = ""+xinf.erno.js.JSRenderer.CANVAS_OFFSET_Y+"px";
+			defaultRoot.style.width = ""+xinf.erno.js.JSRenderer.CANVAS_WIDTH+"px";
+			defaultRoot.style.height = ""+xinf.erno.js.JSRenderer.CANVAS_HEIGHT+"px";
 			#end
 			
 			js.Lib.document.body.appendChild(defaultRoot);
