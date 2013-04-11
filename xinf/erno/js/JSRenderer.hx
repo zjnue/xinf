@@ -219,6 +219,8 @@ class JSRenderer extends ObjectModelRenderer {
 		ctx.bezierCurveTo( xe, ym+oy, xm+ox, ye, xm, ye );
 		ctx.bezierCurveTo( xm-ox, ye, x, ym+oy, x, ym );
 		
+		if( pen.stroke != null )
+			ctx.stroke();
 		ctx.fill();
 		#else
 		rect( x-rx, y-ry, rx*2, ry*2 );
