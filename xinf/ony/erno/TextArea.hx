@@ -276,8 +276,8 @@ class TextArea extends xinf.ony.TextArea {
 		
 		r.style.left = ""+Math.round(x);
 		r.style.top = ""+Math.round(y);
-		r.style.width = ""+Math.round(x);
-		r.style.height = ""+Math.round(y);
+		r.style.width = ""+Math.round(width);
+		r.style.height = ""+Math.round(height);
 		
 		switch( fill ) {
 			case RGBColor(red,g,b):
